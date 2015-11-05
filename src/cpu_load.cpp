@@ -34,14 +34,12 @@ int main(int argc, char **argv)
 
   ros::Publisher cpuload_pub = n.advertise<cpu_load::cpuload>("cpu_load", 1000);
 
-  ros::Rate loop_rate(10);
+  ros::Rate loop_rate(2);
 
   cpu_load::cpuload msg;
 
   CalculateLoad calculateLoad;
   calculateLoad.init();
-
-  std::vector<uint8_t> vproc_load(argc-1);
 
   std::unordered_set<std::shared_ptr<Process>> processes;
 
@@ -49,6 +47,8 @@ int main(int argc, char **argv)
   {
 	  processes.insert(std::make_shared<Process>(argv[i+1]));
   }
+
+  std::vector<uint8_t> vproc_load(processes.size());
 
   for (auto proc : processes)
         	  {
