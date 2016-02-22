@@ -41,7 +41,7 @@ int main(int argc, char **argv)
   CalculateLoad calculateLoad;
   calculateLoad.init();
 
-  std::unordered_set<std::shared_ptr<Process>> processes;
+  std::unordered_set<std::shared_ptr<Process> > processes;
 
   for (int i = 0; i < argc-1; i++)				//Count to argc-1 because number of arguments is argc-1
   {
@@ -59,11 +59,14 @@ int main(int argc, char **argv)
   ros::Duration(0.5).sleep();
   while (ros::ok())
   {
+	  cpu_load::cpuload msg;
+	  
 	  auto it = vproc_load.begin();
 	  for (auto& proc : processes)
 	  {
 		  proc->backupTimes();
-		  calculateLoad.getTimes(proc->proc_id_, proc->process_times_);
+		  if(calculateLoad.getTimes(proc->proc_id_, proc->process_times_)<0)
+			continue;
 		  //ROS_INFO("%s : %lu\n", proc->proc_name_.c_str(), proc->process_times_->cpu_total_time);
 		  //int process_exists = calculateLoad.getTimes(proc->proc_id_, proc->process_times_);
 		  /*if (process_exists != 0)
@@ -78,6 +81,10 @@ int main(int argc, char **argv)
 		  *it = proc->load_;
 		  it++;
 		  //ROS_INFO("%s : %i, %i.\n", proc->proc_name_.c_str(), proc->u_load_, proc->s_load_);
+		  
+		  msg.pid.push_back(proc->proc_id_);
+		  msg.proc_ticks.push_back(proc->process_times_->utime_ticks + proc->process_times_->cutime_ticks);
+		  msg.proc_mem.push_back(proc->process_times_->rss + proc->process_times_->vsize);
 	  }
 
 	  msg.proc_load = vproc_load;

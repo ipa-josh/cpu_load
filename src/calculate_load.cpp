@@ -24,13 +24,14 @@ int CalculateLoad::getTimes(const pid_t pid, struct pstat* result) {
             strlen(stat_filepath) -1);
     FILE *fpstat = fopen(stat_filepath, "r");
     if (fpstat == NULL) {
-        perror("FOPEN ERROR ");
+        perror("FOPEN ERROR 1 ");
+        perror(stat_filepath);
         return -1;
     }
 
     FILE *fstat = fopen("/proc/stat", "r");
     if (fstat == NULL) {
-        perror("FOPEN ERROR ");
+        perror("FOPEN ERROR /proc/stat");
         fclose(fstat);
         return -1;
     }
